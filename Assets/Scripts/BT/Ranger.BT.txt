@@ -1,0 +1,49 @@
+tree("Root")
+	fallback
+		not IsEnemyAlive
+		tree "Healing"
+		tree "Buffing"
+		tree "Explore"
+		tree "ChaseEnemy"
+		tree "RangeAttackEnemy"
+		tree "AttackEnemy"
+		
+tree("Explore")
+	sequence
+		CheckNearItems("ranger")
+		MoveToDestination
+
+tree("Healing")
+	sequence
+		IsHealthLow
+		HasHealthPotion
+		not HasBuffActive
+		UsePotion
+
+tree("Buffing")
+	sequence
+		HasBuffPotion
+		not HasBuffActive
+		UsePotion
+
+tree("ChaseEnemy")
+	sequence
+		not IsEnemyNear
+		not IsEnemyInRange
+		SetDestinationToEnemy
+		random(5,5)
+			MoveToDestination
+			AvoidDestination
+
+tree("RangeAttackEnemy")
+	sequence
+		not IsEnemyNear
+		IsEnemyInRange
+		SetDestinationToEnemy
+		RangeAttackEnemy
+		
+tree("AttackEnemy")
+	sequence
+		IsEnemyNear
+		SetDestinationToEnemy
+		AttackEnemy
