@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
@@ -14,6 +15,9 @@ public class BlackBoard : MonoBehaviour
     Func<float,float,bool> opMajor = (a,b) => a > b;
     List<Vector3> movements = new List<Vector3> {new Vector3(0, 0, 1), new Vector3(1, 0, 0), new Vector3(0, 0, -1), new Vector3(-1, 0, 0), new Vector3(1, 0, 1), new Vector3(1, 0, -1), new Vector3(-1, 0, -1), new Vector3(-1, 0, 1) };
 
+    List<Move> moves  = new List<Move>();
+    bool hasSavedStats = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,7 +27,22 @@ public class BlackBoard : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(entityManager.GetComponentData<Stats>(agent.Entity).hp == 0) {
+            SaveStats(false);
+        }
+    }
+
+    // save the game stats
+    void SaveStats(bool victory) {
+        if(!hasSavedStats) {
+            using (FileStream fs = new FileStream("Assets/Resources/bt_stats.csv", FileMode.Append, FileAccess.Write)) {
+                using (StreamWriter sw = new StreamWriter(fs)) {
+                    int attacks = moves.FindAll(m => m.action.Equals("attack")).Count;
+                    sw.WriteLine(victory+","+entityManager.GetComponentData<Stats>(agent.Entity).hp+","+moves.Count+","+attacks);
+                }
+            }
+            hasSavedStats = true;
+        }
     }
 
     // Check which items are near the agent
@@ -109,6 +128,7 @@ public class BlackBoard : MonoBehaviour
         bool isAlive = entityManager.GetComponentData<Stats>(enemy.Entity).hp != 0;
         if (!isAlive) {
             Task.current.Succeed();
+            SaveStats(true);
         } 
         return isAlive;
     }
@@ -215,12 +235,14 @@ public class BlackBoard : MonoBehaviour
     [Task]
     void MoveToDestination()
     {
+        int action = this.BestMoveAvailableToDestination(agent.transform.position);
 
         entityManager.AddComponentData(
             agent.Entity,
-            new UserInput { action = this.BestMoveAvailableToDestination(agent.transform.position) }
+            new UserInput { action = action }
         );
         
+        moves.Add(new Move(action, "move"));
         Task.current.Succeed();
     }
 
@@ -228,12 +250,14 @@ public class BlackBoard : MonoBehaviour
     [Task]
     void MoveToRangeDestination()
     {
+        int action = this.BestMoveAvailableInRange(agent.transform.position);
 
         entityManager.AddComponentData(
             agent.Entity,
-            new UserInput { action = this.BestMoveAvailableInRange(agent.transform.position) }
+            new UserInput { action = action }
         );
         
+        moves.Add(new Move(action, "move"));
         Task.current.Succeed();
     }
 
@@ -241,11 +265,14 @@ public class BlackBoard : MonoBehaviour
     [Task]
     void AttackEnemy()
     {
+        int action = this.BestMoveAvailableToDestination(agent.transform.position, "minor", true);
+
         entityManager.AddComponentData(
             agent.Entity,
-            new UserInput { action = this.BestMoveAvailableToDestination(agent.transform.position, "minor", true) }
+            new UserInput { action = action }
         );
         
+        moves.Add(new Move(action, "attack"));
         Task.current.Succeed();
     }
 
@@ -253,11 +280,14 @@ public class BlackBoard : MonoBehaviour
     [Task]
     void RangeAttackEnemy()
     {
+        int action = this.BestMoveAvailableInRange(agent.transform.position, "minor", true);
+
         entityManager.AddComponentData(
             agent.Entity,
-            new UserInput { action = this.BestMoveAvailableInRange(agent.transform.position, "minor", true) }
+            new UserInput { action = action }
         );
         
+        moves.Add(new Move(action, "attack"));
         Task.current.Succeed();
     }
 
@@ -265,11 +295,14 @@ public class BlackBoard : MonoBehaviour
     [Task]
     void AvoidDestination()
     {
+        int action = this.BestMoveAvailableToDestination(agent.transform.position, "major");
+
         entityManager.AddComponentData(
             agent.Entity,
-            new UserInput { action = this.BestMoveAvailableToDestination(agent.transform.position, "major") }
+            new UserInput { action = action }
         );
         
+        moves.Add(new Move(action, "move"));
         Task.current.Succeed();
     }
 
@@ -377,6 +410,17 @@ public class BlackBoard : MonoBehaviour
             }
         }
         return dest;
+    }
+    private class Move {
+        public int input;
+        public string action;
+        public Move(int input, string action) {
+            this.input = input;
+            this.action = action;
+        }
+        public override string ToString() {
+            return input + ", " + action;
+        }
     }
 
 }
