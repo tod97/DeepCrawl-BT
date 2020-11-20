@@ -27,8 +27,13 @@ public class BlackBoard : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Character enemy = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
+
         if(entityManager.GetComponentData<Stats>(agent.Entity).hp == 0) {
             SaveStats(false);
+        }
+        if(entityManager.GetComponentData<Stats>(enemy.Entity).hp == 0) {
+            SaveStats(true);
         }
     }
 
@@ -128,7 +133,6 @@ public class BlackBoard : MonoBehaviour
         bool isAlive = entityManager.GetComponentData<Stats>(enemy.Entity).hp != 0;
         if (!isAlive) {
             Task.current.Succeed();
-            SaveStats(true);
         } 
         return isAlive;
     }
