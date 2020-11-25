@@ -21,6 +21,11 @@ public class ActionSystem : ComponentSystem
   }
 
   [Inject] private Data data;
+  private bool attack = false;
+  public int moves = 0;
+  public int meleeAttack = 0;
+  public int rangeAttack = 0;
+  public int nPotion = 0;
 
   // Search for a character in the tiles along the specified direction
   // for the specified range. If a tile contains a character,
@@ -245,9 +250,23 @@ public class ActionSystem : ComponentSystem
             // Compute the total attack (base attack of player + damage weapon)
             int damage = Random.Range(rangeWeapon.minDamage, rangeWeapon.maxDamage + 1) + stats.des;
             puc.AddComponent(entity, new Attack { damage = damage, attackTileX = rangeTile.x, attackTileY = rangeTile.y, type = 1 });
+            attack = true;
           }
         }
       }
+
+      if(character.tag == "Player") {
+        if (userInput.action != 8) {
+          moves++;
+          if (attack) {
+            if(userInput.action <= 7) meleeAttack++;
+            else rangeAttack++;
+          }
+        } else {
+          nPotion++;
+        }
+      }
+      attack = false;
 
       if (newRotation != oldRotation)
       {

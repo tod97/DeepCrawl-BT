@@ -16,6 +16,7 @@ public class BlackBoard : MonoBehaviour
     List<Vector3> movements = new List<Vector3> {new Vector3(0, 0, 1), new Vector3(1, 0, 0), new Vector3(0, 0, -1), new Vector3(-1, 0, 0), new Vector3(1, 0, 1), new Vector3(1, 0, -1), new Vector3(-1, 0, -1), new Vector3(-1, 0, 1) };
 
     List<Move> moves  = new List<Move>();
+    int nPotionStat = 0;
     bool hasSavedStats = false;
 
     // Start is called before the first frame update
@@ -40,12 +41,33 @@ public class BlackBoard : MonoBehaviour
     // save the game stats
     void SaveStats(bool victory) {
         if(!hasSavedStats) {
+            Character enemy = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
+
             using (FileStream fs = new FileStream("Assets/Resources/bt_stats.csv", FileMode.Append, FileAccess.Write)) {
                 using (StreamWriter sw = new StreamWriter(fs)) {
-                    int attacks = moves.FindAll(m => m.action.Equals("attack")).Count;
-                    sw.WriteLine(victory+","+entityManager.GetComponentData<Stats>(agent.Entity).hp+","+moves.Count+","+attacks);
+                    int meleeAttacks = moves.FindAll(m => m.action.Equals("melee-attack")).Count;
+                    int rangeAttacks = moves.FindAll(m => m.action.Equals("range-attack")).Count;
+                    sw.WriteLine(victory+","+
+                        entityManager.GetComponentData<Stats>(agent.Entity).hp+","+
+                        moves.Count+","+
+                        meleeAttacks+","+
+                        rangeAttacks+","+
+                        nPotionStat
+                    );
                 }
             }
+            using (FileStream fs = new FileStream("Assets/Resources/ml_stats.csv", FileMode.Append, FileAccess.Write)) {
+                using (StreamWriter sw = new StreamWriter(fs)) {
+                    sw.WriteLine(!victory+","+
+                        entityManager.GetComponentData<Stats>(enemy.Entity).hp+","+
+                        World.Active.GetExistingManager<ActionSystem>().moves+","+
+                        World.Active.GetExistingManager<ActionSystem>().meleeAttack+","+
+                        World.Active.GetExistingManager<ActionSystem>().rangeAttack+","+
+                        World.Active.GetExistingManager<ActionSystem>().nPotion
+                    );
+                }
+            }
+
             hasSavedStats = true;
         }
     }
@@ -231,7 +253,7 @@ public class BlackBoard : MonoBehaviour
             agent.Entity,
             new UserInput { action = 8 }
         );
-        
+        nPotionStat++;
         Task.current.Succeed();
     }
 
@@ -276,7 +298,7 @@ public class BlackBoard : MonoBehaviour
             new UserInput { action = action }
         );
         
-        moves.Add(new Move(action, "attack"));
+        moves.Add(new Move(action, "melee-attack"));
         Task.current.Succeed();
     }
 
@@ -291,7 +313,7 @@ public class BlackBoard : MonoBehaviour
             new UserInput { action = action }
         );
         
-        moves.Add(new Move(action, "attack"));
+        moves.Add(new Move(action, "range-attack"));
         Task.current.Succeed();
     }
 
