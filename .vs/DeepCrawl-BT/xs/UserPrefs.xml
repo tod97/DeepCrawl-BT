@@ -1,0 +1,28 @@
+﻿<Properties StartupConfiguration="{5C4D2A01-3D4D-B4F0-864B-92D520DD35E6}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Systems/DeathSystem.cs">
+    <Files>
+      <File FileName="Assets/Scripts/ML/Agents/BaseAgent.cs" Line="533" Column="1" />
+      <File FileName="Assets/Scripts/Systems/DeathSystem.cs" Line="103" Column="11" />
+      <File FileName="Assets/Resources/bt_stats.csv" Line="3" Column="1" />
+      <File FileName="Assets/Scripts/Systems/InputSystem.cs" Line="94" Column="1" />
+      <File FileName="Assets/Scripts/Systems/AttackSystem.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Systems/AttackSystem.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/BoardManagerSystem.cs" Line="408" Column="43" />
+      <File FileName="Assets/Scripts/BT/Blackboard.cs" Line="502" Column="6" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="DeepCrawl-BT" expanded="True" selected="True" />
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="e6bf3a09-d399-4190-b2ab-a516ed808dd5" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

@@ -19,6 +19,27 @@ public class BlackBoard : MonoBehaviour
     int nPotionStat = 0;
     bool hasSavedStats = false;
 
+    // Cumulative reward
+    float cumRew = 0f;
+
+    // Reset cumulative reward
+    public void resetRew()
+    {
+        cumRew = 0f;
+    }
+
+    // Add a new ist reward
+    public void addRew(float rew)
+    {
+        cumRew += rew;
+    }
+
+    // Get cumulative reward
+    public float getRew()
+    {
+        return cumRew;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -253,6 +274,7 @@ public class BlackBoard : MonoBehaviour
             agent.Entity,
             new UserInput { action = 8 }
         );
+
         nPotionStat++;
         Task.current.Succeed();
     }
@@ -267,6 +289,9 @@ public class BlackBoard : MonoBehaviour
             agent.Entity,
             new UserInput { action = action }
         );
+
+        // Get a negative reward for each move action
+        addRew(-0.01f);
         
         moves.Add(new Move(action, "move"));
         Task.current.Succeed();
@@ -282,7 +307,10 @@ public class BlackBoard : MonoBehaviour
             agent.Entity,
             new UserInput { action = action }
         );
-        
+
+        // Get a negative reward for each move action
+        addRew(-0.01f);
+
         moves.Add(new Move(action, "move"));
         Task.current.Succeed();
     }
@@ -297,7 +325,10 @@ public class BlackBoard : MonoBehaviour
             agent.Entity,
             new UserInput { action = action }
         );
-        
+
+        // Get a negative reward for each move action
+        addRew(-0.01f);
+
         moves.Add(new Move(action, "melee-attack"));
         Task.current.Succeed();
     }
@@ -312,7 +343,9 @@ public class BlackBoard : MonoBehaviour
             agent.Entity,
             new UserInput { action = action }
         );
-        
+        // Get a negative reward for each move action
+        addRew(-0.01f);
+
         moves.Add(new Move(action, "range-attack"));
         Task.current.Succeed();
     }
@@ -327,7 +360,9 @@ public class BlackBoard : MonoBehaviour
             agent.Entity,
             new UserInput { action = action }
         );
-        
+        // Get a negative reward for each move action
+        addRew(-0.01f);
+
         moves.Add(new Move(action, "move"));
         Task.current.Succeed();
     }
@@ -447,6 +482,31 @@ public class BlackBoard : MonoBehaviour
         public override string ToString() {
             return input + ", " + action;
         }
+    }
+
+    // Give a positive reward for each Hp that the target has lost. 
+    public void giveDamageReward()
+    {
+        Character target = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
+        Stats targetStats = entityManager.GetComponentData<Stats>(target.Entity);
+        int currentTargetHp = targetStats.hp;
+
+        if (currentTargetHp <= 0)
+        {
+            addRew(10.0f * computeHpFactor());
+        }
+    }
+
+    // Compute the HP factor
+    public float computeHpFactor()
+    {
+        Stats agentStats = entityManager.GetComponentData<Stats>(agent.Entity);
+        int currentHp = agentStats.hp;
+        int maxHp = agentStats.maxHp;
+
+        float hp_discounted_factor = (float)currentHp / (float)maxHp;
+
+        return hp_discounted_factor;
     }
 
 }
