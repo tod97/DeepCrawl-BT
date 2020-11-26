@@ -22,10 +22,13 @@ public class ActionSystem : ComponentSystem
 
     [Inject] private Data data;
     private bool attack = false;
-    public int moves = 0;
-    public int meleeAttack = 0;
-    public int rangeAttack = 0;
-    public int nPotion = 0;
+
+    /*
+        Array delle statistiche
+        hp, meleeAttack, rangeAttack, nPotion
+    */
+    public int[] mlStats = new int[] {0,0,0,0};
+    public int[] btStats = new int[] {0,0,0,0};
 
     // Search for a character in the tiles along the specified direction
     // for the specified range. If a tile contains a character,
@@ -259,16 +262,32 @@ public class ActionSystem : ComponentSystem
             {
                 if (userInput.action != 8)
                 {
-                    moves++;
+                    mlStats[0]++;
                     if (attack)
                     {
-                        if (userInput.action <= 7) meleeAttack++;
-                        else rangeAttack++;
+                        if (userInput.action <= 7) mlStats[1]++;
+                        else mlStats[2]++;
                     }
                 }
                 else
                 {
-                    nPotion++;
+                    mlStats[3]++;
+                }
+            }
+            if (character.tag == "BTAgent")
+            {
+                if (userInput.action != 8)
+                {
+                    btStats[0]++;
+                    if (attack)
+                    {
+                        if (userInput.action <= 7) btStats[1]++;
+                        else btStats[2]++;
+                    }
+                }
+                else
+                {
+                    btStats[3]++;
                 }
             }
             attack = false;

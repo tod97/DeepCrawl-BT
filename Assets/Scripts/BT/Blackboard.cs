@@ -48,50 +48,7 @@ public class BlackBoard : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
-        Character enemy = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
-
-        if(entityManager.GetComponentData<Stats>(agent.Entity).hp == 0) {
-            SaveStats(false);
-        }
-        if(entityManager.GetComponentData<Stats>(enemy.Entity).hp == 0) {
-            SaveStats(true);
-        }
-    }
-
-    // save the game stats
-    void SaveStats(bool victory) {
-        if(!hasSavedStats) {
-            Character enemy = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
-
-            using (FileStream fs = new FileStream("Assets/Resources/bt_stats.csv", FileMode.Append, FileAccess.Write)) {
-                using (StreamWriter sw = new StreamWriter(fs)) {
-                    int meleeAttacks = moves.FindAll(m => m.action.Equals("melee-attack")).Count;
-                    int rangeAttacks = moves.FindAll(m => m.action.Equals("range-attack")).Count;
-                    sw.WriteLine(victory+","+
-                        entityManager.GetComponentData<Stats>(agent.Entity).hp+","+
-                        moves.Count+","+
-                        meleeAttacks+","+
-                        rangeAttacks+","+
-                        nPotionStat
-                    );
-                }
-            }
-            using (FileStream fs = new FileStream("Assets/Resources/ml_stats.csv", FileMode.Append, FileAccess.Write)) {
-                using (StreamWriter sw = new StreamWriter(fs)) {
-                    sw.WriteLine(!victory+","+
-                        entityManager.GetComponentData<Stats>(enemy.Entity).hp+","+
-                        World.Active.GetExistingManager<ActionSystem>().moves+","+
-                        World.Active.GetExistingManager<ActionSystem>().meleeAttack+","+
-                        World.Active.GetExistingManager<ActionSystem>().rangeAttack+","+
-                        World.Active.GetExistingManager<ActionSystem>().nPotion
-                    );
-                }
-            }
-
-            hasSavedStats = true;
-        }
-    }
+    {}
 
     // Check which items are near the agent
     [Task]

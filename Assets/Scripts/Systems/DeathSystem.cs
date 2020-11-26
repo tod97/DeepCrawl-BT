@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using Unity.Entities;
 
@@ -91,10 +92,7 @@ public class DeathSystem : ComponentSystem
             mlAgent.giveHpReward();
             mlAgent.giveDamageReward();
 
-            float mlReward = mlAgent.GetCumulativeReward();
-
-
-            Debug.Log("ML reward = " + mlReward);
+            saveStats("Assets/Resources/ml_stats.csv", ml, World.Active.GetExistingManager<ActionSystem>().mlStats, mlAgent.GetCumulativeReward());            
         }
 
         // Get the total reward of a BT agent
@@ -105,9 +103,8 @@ public class DeathSystem : ComponentSystem
             BlackBoard bb = bt.GetComponent<BlackBoard>();
             bb.giveDamageReward();
 
-            float btReward = bb.getRew();
-
-            Debug.Log("BT reward = " + btReward);
+            saveStats("Assets/Resources/bt_stats.csv", bt, World.Active.GetExistingManager<ActionSystem>().btStats, bb.getRew());            
+        
             bb.resetRew();
         }
 
@@ -115,5 +112,15 @@ public class DeathSystem : ComponentSystem
         // nella tabella delle statistiche dovrai passare alla riga successiva
         BoardManagerSystem.instance.resetTraining();
 
+    }
+
+    void saveStats(string fileUrl, GameObject gameObject, int[] stats, float reward) {
+        EntityManager entityManager = World.Active.GetExistingManager<EntityManager>();
+        using (FileStream fs = new FileStream(fileUrl, FileMode.Append, FileAccess.Write)) {
+            using (StreamWriter sw = new StreamWriter(fs)) {
+                int hp = entityManager.GetComponentData<Stats>(gameObject.GetComponent<Character>().Entity).hp;
+                sw.WriteLine((hp != 0)+","+hp+","+stats[0]+","+stats[1]+","+stats[2]+","+stats[3]+","+reward);
+            }
+        }
     }
 }
