@@ -65,6 +65,11 @@ public class ActionSystem : ComponentSystem
         var puc = PostUpdateCommands;
         var dt = Time.deltaTime;
 
+        int moves = World.Active.GetExistingManager<ActionSystem>().mlStats[0];
+        if (moves > 150) {
+            BoardManagerSystem.instance.resetTraining();
+        }
+
         for (var i = 0; i < data.Length; i++)
         {
             // Set the movement of the camera to automatic
@@ -222,6 +227,7 @@ public class ActionSystem : ComponentSystem
                     if (character.tag != ((GameObject)newTile.getCharacter()).tag)
                     {
                         puc.AddComponent(entity, new Attack { damage = damage, attackTileX = newTile.x, attackTileY = newTile.y, type = 0 });
+                        attack = true;
                     }
                 }
                 else if (newTile != null && newTile.hasInteractable() && tile.isNeighbour(newTile))

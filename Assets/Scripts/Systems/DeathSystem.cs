@@ -92,7 +92,7 @@ public class DeathSystem : ComponentSystem
             mlAgent.giveHpReward();
             mlAgent.giveDamageReward();
 
-            saveStats("Assets/Resources/ml_stats.csv", ml, World.Active.GetExistingManager<ActionSystem>().mlStats, mlAgent.GetCumulativeReward());            
+            saveStats("Assets/Resources/ml_stats.csv", ml, World.Active.GetExistingManager<ActionSystem>().mlStats, mlAgent.GetCumulativeReward());
         }
 
         // Get the total reward of a BT agent
@@ -103,8 +103,7 @@ public class DeathSystem : ComponentSystem
             BlackBoard bb = bt.GetComponent<BlackBoard>();
             bb.giveDamageReward();
 
-            saveStats("Assets/Resources/bt_stats.csv", bt, World.Active.GetExistingManager<ActionSystem>().btStats, bb.getRew());            
-        
+            saveStats("Assets/Resources/bt_stats.csv", bt, World.Active.GetExistingManager<ActionSystem>().btStats, bb.getRew());
             bb.resetRew();
         }
 

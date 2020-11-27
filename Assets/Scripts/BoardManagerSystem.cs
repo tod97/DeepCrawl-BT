@@ -593,6 +593,8 @@ public class BoardManagerSystem : MonoBehaviour
       GameManager.instance.gameUI.resetText();
 
 
+    World.Active.GetExistingManager<ActionSystem>().mlStats = new int[] {0,0,0,0};   
+    World.Active.GetExistingManager<ActionSystem>().btStats = new int[] {0,0,0,0};
 
     // Reset characters;
     for (int i = 0; i < numAgents; i++)
