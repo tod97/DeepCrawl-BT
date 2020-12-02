@@ -448,7 +448,7 @@ PrefabInstance:
     - target: {fileID: 114151544521941222, guid: b54b5c5af8e3948f1af96cd128bd3c46,
         type: 3}
       propertyPath: doubleAgent
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114151544521941222, guid: b54b5c5af8e3948f1af96cd128bd3c46,
         type: 3}
@@ -458,7 +458,7 @@ PrefabInstance:
     - target: {fileID: 114151544521941222, guid: b54b5c5af8e3948f1af96cd128bd3c46,
         type: 3}
       propertyPath: player
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114151544521941222, guid: b54b5c5af8e3948f1af96cd128bd3c46,
         type: 3}
@@ -1116,7 +1116,7 @@ PrefabInstance:
     - target: {fileID: 114151544521941222, guid: b54b5c5af8e3948f1af96cd128bd3c46,
         type: 3}
       propertyPath: behaviourTree
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114151544521941222, guid: b54b5c5af8e3948f1af96cd128bd3c46,
         type: 3}
@@ -1132,7 +1132,7 @@ PrefabInstance:
         type: 3}
       propertyPath: trainAsset
       value: 
-      objectReference: {fileID: 4900000, guid: 9c226e66e07994bcf854ef855f87da33, type: 3}
+      objectReference: {fileID: 4900000, guid: 3d41f4070f53d461cb950196c2ce5db0, type: 3}
     - target: {fileID: 114151544521941222, guid: b54b5c5af8e3948f1af96cd128bd3c46,
         type: 3}
       propertyPath: ArcherAsset
@@ -4089,7 +4089,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000020323065, y: -0.000012876133}
+  m_AnchoredPosition: {x: 0.000020323065, y: 0.000018151248}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &898461657

@@ -17,7 +17,7 @@ public class CameraSystem : ComponentSystem
 
   protected override void OnUpdate()
   {
-    if (BoardManagerSystem.instance.noAnim)
+    if (BoardManagerSystem.instance.isTraning)
       return;
 
     var dt = Time.deltaTime;

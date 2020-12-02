@@ -118,7 +118,7 @@ public class DeathSystem : ComponentSystem
         using (FileStream fs = new FileStream(fileUrl, FileMode.Append, FileAccess.Write)) {
             using (StreamWriter sw = new StreamWriter(fs)) {
                 int hp = entityManager.GetComponentData<Stats>(gameObject.GetComponent<Character>().Entity).hp;
-                sw.WriteLine((hp != 0)+","+hp+","+stats[0]+","+stats[1]+","+stats[2]+","+stats[3]+","+reward);
+                sw.WriteLine((hp != 0)+","+hp+","+stats[0]+","+stats[1]+","+stats[2]+","+stats[3]+","+System.Math.Round(reward,2));
             }
         }
     }

@@ -18,6 +18,7 @@ public class BlackBoard : MonoBehaviour
     List<Move> moves  = new List<Move>();
     int nPotionStat = 0;
     bool hasSavedStats = false;
+    string enemyTag = "Random";
 
     // Cumulative reward
     float cumRew = 0f;
@@ -44,6 +45,7 @@ public class BlackBoard : MonoBehaviour
     void Start()
     {
         entityManager = World.Active.GetExistingManager<EntityManager>();
+        enemyTag = BoardManagerSystem.instance.player ? "Player" : "Random";
     }
 
     // Update is called once per frame
@@ -57,7 +59,7 @@ public class BlackBoard : MonoBehaviour
         type = (type != "warrior" && type != "archer")
         ? (new System.Random()).Next(0, 2) == 0 ? "warrior" : "archer"
         : type;
-        Character agent2 = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
+        Character agent2 = GameObject.FindGameObjectWithTag(enemyTag).GetComponent<Character>();
         String currentSword = agent.GetComponent<Inventory>().meeleWeapon.itemName;
         String currentBow = agent.GetComponent<Inventory>().rangeWeapon.itemName;
         float bSwordDistance = DistanceFromNearest(typeof(MeleeWeapon), "Bastard Sword");
@@ -109,7 +111,7 @@ public class BlackBoard : MonoBehaviour
     [Task]
     bool SetDestinationToEnemy()
     {
-        destination = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>().transform.position;
+        destination = GameObject.FindGameObjectWithTag(enemyTag).GetComponent<Character>().transform.position;
         return true;
     }
 
@@ -129,7 +131,7 @@ public class BlackBoard : MonoBehaviour
     [Task]
     bool IsEnemyAlive()
     {
-        Character enemy = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
+        Character enemy = GameObject.FindGameObjectWithTag(enemyTag).GetComponent<Character>();
         bool isAlive = entityManager.GetComponentData<Stats>(enemy.Entity).hp != 0;
         if (!isAlive) {
             Task.current.Succeed();
@@ -141,7 +143,7 @@ public class BlackBoard : MonoBehaviour
     [Task]
     bool IsEnemyNear()
     {
-        Character enemy = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
+        Character enemy = GameObject.FindGameObjectWithTag(enemyTag).GetComponent<Character>();
         return Vector3.Distance(agent.transform.position, enemy.transform.position) < 2;
     }
 
@@ -149,7 +151,7 @@ public class BlackBoard : MonoBehaviour
     [Task]
     bool IsEnemyInRange()
     {
-        Character enemy = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
+        Character enemy = GameObject.FindGameObjectWithTag(enemyTag).GetComponent<Character>();
         return IsPositionInAgentRange(agent.transform.position, entityManager.GetComponentData<Stats>(enemy.Entity).actualRange, enemy.transform.position);
     }
 
@@ -181,13 +183,22 @@ public class BlackBoard : MonoBehaviour
         return entityManager.HasComponent(agent.Entity, typeof(Buff));
     }
 
+    // check if can move to a position
+    [Task]
+    bool IsPositionAvailableToMove(Vector3 position)
+    {
+        Tile currentTile = BoardManagerSystem.instance.getTile((int)agent.transform.position.x, (int)agent.transform.position.z);
+        Tile newTile = BoardManagerSystem.instance.getTile((int)position.x, (int)position.z);
+        return newTile != null && newTile.canMove() && currentTile.isNeighbour(newTile);
+    }
+
     // check if a position is available
     [Task]
     bool IsPositionAvailable(Vector3 position)
     {
         Tile currentTile = BoardManagerSystem.instance.getTile((int)agent.transform.position.x, (int)agent.transform.position.z);
         Tile newTile = BoardManagerSystem.instance.getTile((int)position.x, (int)position.z);
-        return newTile != null && newTile.canMove() && currentTile.isNeighbour(newTile);
+        return newTile != null && currentTile.isNeighbour(newTile);
     }
 
     // check if a position is in agent range
@@ -330,19 +341,19 @@ public class BlackBoard : MonoBehaviour
         List<int> alternativePos = new List<int>();
         float distance = operation == "major" ? float.MinValue : float.MaxValue;
         Func<float,float,bool> op = operation == "major" ? opMajor : opMinor;
-        Character enemy = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
+        Character enemy = GameObject.FindGameObjectWithTag(enemyTag).GetComponent<Character>();
         int range = entityManager.GetComponentData<Stats>(enemy.Entity).actualRange;
 
         for(int i = 0; i < movements.Count; i++) {
             if (
                 op(Vector3.Distance(position + movements[i], destination),distance) && 
                 !IsPositionInAgentRange(enemy.transform.position, range, position + movements[i]) &&
-                (attack || IsPositionAvailable(position + movements[i]))
+                ((attack && IsPositionAvailable(position + movements[i])) || IsPositionAvailableToMove(position + movements[i]))
             ) {
                 distance = Vector3.Distance(position + movements[i], destination);
                 newPos = i;
             }
-            if (IsPositionAvailable(position + movements[i])) {
+            if (IsPositionAvailableToMove(position + movements[i])) {
                 alternativePos.Add(i);
             }
         }
@@ -360,19 +371,19 @@ public class BlackBoard : MonoBehaviour
         List<int> alternativePos = new List<int>();
         float distance = operation == "major" ? float.MinValue : float.MaxValue;
         Func<float,float,bool> op = operation == "major" ? opMajor : opMinor;
-        Character enemy = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
+        Character enemy = GameObject.FindGameObjectWithTag(enemyTag).GetComponent<Character>();
         int range = entityManager.GetComponentData<Stats>(agent.Entity).actualRange;
 
         for(int i = 0; i < movements.Count; i++) {
             if (
                 op(Vector3.Distance(position + movements[i], destination),distance) && 
                 IsPositionInAgentRange(enemy.transform.position, range, position + movements[i]) &&
-                (attack || IsPositionAvailable(position + movements[i]))
+                (attack || IsPositionAvailableToMove(position + movements[i]))
             ) {
                 distance = Vector3.Distance(position + movements[i], destination);
                 newPos = i + ((attack) ? 9 : 0);
             }
-            if (IsPositionAvailable(position + movements[i]) && !IsPositionInAgentRange(enemy.transform.position, range, position + movements[i])) {
+            if (IsPositionAvailableToMove(position + movements[i]) && !IsPositionInAgentRange(enemy.transform.position, range, position + movements[i])) {
                 alternativePos.Add(i + ((attack) ? 9 : 0));
             }
         }
@@ -444,7 +455,7 @@ public class BlackBoard : MonoBehaviour
     // Give a positive reward for each Hp that the target has lost. 
     public void giveDamageReward()
     {
-        Character target = GameObject.FindGameObjectWithTag("Player").GetComponent<Character>();
+        Character target = GameObject.FindGameObjectWithTag(enemyTag).GetComponent<Character>();
         Stats targetStats = entityManager.GetComponentData<Stats>(target.Entity);
         int currentTargetHp = targetStats.hp;
 

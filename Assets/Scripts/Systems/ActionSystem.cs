@@ -65,7 +65,7 @@ public class ActionSystem : ComponentSystem
         var puc = PostUpdateCommands;
         var dt = Time.deltaTime;
 
-        int moves = World.Active.GetExistingManager<ActionSystem>().mlStats[0];
+        int moves = World.Active.GetExistingManager<ActionSystem>().btStats[0];
         if (moves > 150) {
             BoardManagerSystem.instance.resetTraining();
         }
@@ -264,7 +264,7 @@ public class ActionSystem : ComponentSystem
                 }
             }
 
-            if (character.tag == "Player")
+            if (character.tag == "Player" || character.tag == "BrainedAgent")
             {
                 if (userInput.action != 8)
                 {
